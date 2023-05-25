@@ -20,20 +20,31 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
 
     public AuthenticationResponse register(RegisterRequest request) {
+        // Checking if email is unique
+        if (repository.existsByEmail(request.getEmail())) {
+            throw new RuntimeException("Email already exists");
+        }
+
         var user = User.builder()
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.admin)
+                .role(Role.admin) //nahhiha enum mnna w nwlli nb3tha f request m3a email and psw with the body
                 .build();
-        repository.save(user); //registration only
-        //creating the jwt token for the created user
+
+        // Saving user to repository : user registered
+        repository.save(user);
+
+        // Creating JWT token for the created user
         var jwtToken = jwtService.generateToken(user);
+
+        // Return authentication response with JWT token(its only property)
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();
     }
+
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         authenticationManager.authenticate(

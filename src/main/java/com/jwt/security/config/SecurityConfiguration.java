@@ -1,6 +1,5 @@
 package com.jwt.security.config;
 
-import jakarta.servlet.Filter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,12 +24,16 @@ public class SecurityConfiguration {
         //matchers: white list: endpoints that do not require authentication or token
 
         http
+                .cors()
+                .and()
                 .csrf()
                 .disable()
                 .authorizeHttpRequests()
-                .requestMatchers("api/v1/auth/**") //app patterns
+                .requestMatchers("api/v1/auth/**")
+                //app patterns that don't need auth
                 .permitAll()
                 .anyRequest()
+                //other than that path
                 .authenticated()
                 .and()  //new config
                 .sessionManagement()
